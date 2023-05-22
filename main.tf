@@ -19,14 +19,12 @@ resource "aws_iam_role" "eks-iam-role" {
 EOF
 }
 
-resource "aws_iam_role_policy_attachment" "AmazonEKSClusterPolicy" {
+resource "aws_iam_role_policy_attachment" "AmazonEksClusterPolicy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
   role       = aws_iam_role.eks-iam-role.name
 }
-resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerRegistryReadOnly-EKS" {
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-  role       = aws_iam_role.eks-iam-role.name
-}
+
+
 
 
 resource "aws_eks_cluster" "tang-eks" {
@@ -34,11 +32,11 @@ resource "aws_eks_cluster" "tang-eks" {
   role_arn = aws_iam_role.eks-iam-role.arn
 
   vpc_config {
-    subnet_ids = [data.aws_availability_zones.avalable.names[0].id, data.aws_availability_zones.avalable.names[1].id] #
+    subnet_ids = ["subnet-007382170996f6ccc", "subnet-02dd970a5ac5ac486"]
   }
 
   depends_on = [
-    aws_iam_role.eks-iam-role,
+    aws_iam_role_policy_attachment.AmazonEksClusterPolicy,
   ]
 }
 
@@ -46,7 +44,7 @@ resource "aws_eks_node_group" "worker-node-group" {
   cluster_name    = aws_eks_cluster.tang-eks.name
   node_group_name = "andznakan-workernodes"
   node_role_arn   = aws_iam_role.workernodes.arn
-  subnet_ids      = [var.subnet_id_1, var.subnet_id_2] #
+  subnet_ids      = ["subnet-007382170996f6ccc", "subnet-02dd970a5ac5ac486"]
   instance_types  = ["t2.micro"]
 
   scaling_config {
@@ -58,6 +56,6 @@ resource "aws_eks_node_group" "worker-node-group" {
   depends_on = [
     aws_iam_role_policy_attachment.AmazonEKSWorkerNodePolicy,
     aws_iam_role_policy_attachment.AmazonEKS_CNI_Policy,
-    #aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
+    aws_iam_role_policy_attachment.AmazonEC2ContainerRegistryReadOnly,
   ]
 }
