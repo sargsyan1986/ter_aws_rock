@@ -73,16 +73,3 @@ resource "aws_route_table_association" "rtAssoc1b" {
   subnet_id      = aws_subnet.public-us-east-1b.id
   route_table_id = aws_route_table.imRT.id
 }
-
-# # Add route to route table
-# resource "aws_route" "main" {
-#   route_table_id = aws_vpc.virtual_anhatakan_amp.id
-#   route {
-#     cidr_block = "0.0.0.0/0"
-#     gateway_id = aws_internet_gateway.imIGW.id
-#   }
-
-#   tags = {
-#     Name = "public_rt"
-#   }
-# }
