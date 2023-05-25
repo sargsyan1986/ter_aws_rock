@@ -1,14 +1,11 @@
-# VPC
 resource "aws_vpc" "virtual_anhatakan_amp" {
   cidr_block = "10.0.0.0/16"
 
   tags = {
-    Name                                           = "${var.project}-vpc",
-    "kubernetes.io/cluster/${var.project}-cluster" = "shared"
+    Name = "im_amp"
   }
 }
 
-# Public Subnets
 resource "aws_subnet" "public-us-east-1a" {
   vpc_id                  = aws_vpc.virtual_anhatakan_amp.id
   cidr_block              = "10.0.1.0/24"
@@ -16,13 +13,12 @@ resource "aws_subnet" "public-us-east-1a" {
   map_public_ip_on_launch = true
 
   tags = {
-    "Name" = "public-us-east-1a"
-    #"kubernetes.io/cluster/tang-eks" = "owned"
-    "kubernetes.io/role/elb" = 1
+    "Name"                             = "public-us-east-1a"
+    "kubernetes.io/cluster/im-cluster" = "owned"
+    "kubernetes.io/role/elb"           = 1
   }
 }
 
-# Public Subnets
 resource "aws_subnet" "public-us-east-1b" {
   vpc_id                  = aws_vpc.virtual_anhatakan_amp.id
   cidr_block              = "10.0.2.0/24"
@@ -30,46 +26,44 @@ resource "aws_subnet" "public-us-east-1b" {
   map_public_ip_on_launch = true
 
   tags = {
-    "Name" = "public-us-east-1b"
-    #"kubernetes.io/cluster/tang-eks" = "owned"
-    "kubernetes.io/role/elb" = 1
+    "Name"                             = "public-us-east-1b"
+    "kubernetes.io/cluster/im-cluster" = "owned"
+    "kubernetes.io/role/elb"           = 1
   }
 }
 
-# Internet Gateway
-resource "aws_internet_gateway" "imIGW" {
+resource "aws_internet_gateway" "im_igw" {
   vpc_id = aws_vpc.virtual_anhatakan_amp.id
 
   tags = {
-    "Name" = "${var.project}-igw"
+    Name = "im_igw"
   }
-
-  depends_on = [aws_vpc.virtual_anhatakan_amp]
 }
 
-# Route Table(s)
-# Route the public subnet traffic through the IGW
-resource "aws_route_table" "imRT" {
+resource "aws_route_table" "public_rt" {
   vpc_id = aws_vpc.virtual_anhatakan_amp.id
 
   route {
     cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.imIGW.id
+    gateway_id = aws_internet_gateway.im_igw.id
   }
 
   tags = {
-    Name = "${var.project}-Default-rt"
+    Name = "public_rt"
   }
+  # depends_on = [
+  #   aws_internet_gateway.im_igw
+  # ]
 }
 
-# Route table and subnet associations for us-east-1a
-resource "aws_route_table_association" "rtAssoc1a" {
+resource "aws_route_table_association" "public-us-east-1a" {
   subnet_id      = aws_subnet.public-us-east-1a.id
-  route_table_id = aws_route_table.imRT.id
+  route_table_id = aws_route_table.public_rt.id
 }
 
-# Route table and subnet associations for us-east-1b
-resource "aws_route_table_association" "rtAssoc1b" {
+resource "aws_route_table_association" "public-us-east-1b" {
   subnet_id      = aws_subnet.public-us-east-1b.id
-  route_table_id = aws_route_table.imRT.id
+  route_table_id = aws_route_table.public_rt.id
 }
+
+
