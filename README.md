@@ -8,7 +8,8 @@ Before you start creating, you'll need the following:
     4. a Virtual Private Cloud configured for EKS; and
     5. a code or text editor, like VS Code.
 
-export AWS_ACCESS_KEY_ID=<key-id>
+export AWS_ACCESS_KEY_ID=<key-id> 
+    
 export AWS_SECRET_ACCESS_KEY=<secret-key>
     
 terraform init
