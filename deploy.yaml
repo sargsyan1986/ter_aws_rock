@@ -30,7 +30,7 @@ kind: Service
 metadata:
   name: mi-servicio
 spec:
-  type: NodePort
+  # type: NodePort
   selector:
     app: my-app  # selecting PODs with labels
   ports:
