@@ -24,27 +24,59 @@ spec:
           ports:
             - containerPort: 3000 # Conteineri meji port@ !
 
+
+
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mi-servicio
 spec:
-  # type: NodePort
+  type: NodePort
   selector:
     app: my-app  # selecting PODs with labels
   ports:
     - port: 80 #load balanceri vra
       protocol: TCP
       targetPort: 3000 # port on POD
-  type : LoadBalancer
-      
-# ---
-# apiVersion: networking.k8s.io/v1beta1
-# kind: Ingress
-# metadata:
-#   name: my-deployment
-# spec:
-#   backend:
-#     serviceName: my-app
-#     servicePort: 80
+      # (optional) By default and for convenience, the Kubernetes control plane will allocate a port from a range (default: 30000-32767)
+      nodePort: 30111
+  # type : LoadBalancer
+
+
+  
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ingress-server
+  # namespace: echoserver
+  annotations:
+    alb.ingress.kubernetes.io/scheme: internet-facing
+    # alb.ingress.kubernetes.io/tags: Environment=dev,Team=test
+    # alb.ingress.kubernetes.io/subnets: subnet-03c743189d636b8b0, subnet-03d6f3e8e0e391c97
+spec:
+  ingressClassName: alb
+  rules:
+   - host: "my.erevan.click"
+     http:
+       paths:
+         - path: /
+           pathType: Prefix
+           backend:
+             service:
+               name: mi-servicio
+               port:
+                 number: 80
+  # rules:
+  #   - host: "my.erevan.click"
+  #     http:
+  #       paths:
+  #         - path: /
+  #           pathType: Exact
+  #           backend:
+  #             service:
+  #               name: mi-servicio
+  #               port:
+  #                 number: 80
+    
